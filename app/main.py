@@ -5,6 +5,7 @@ from app.embeddings.embedder import get_embedding_model
 from app.vectorstore.store import create_vector_store
 from app.embeddings.embedder import get_embedding_model
 from app.retrieval.retriever import retrieve_documents
+from app.generation.generator import generate_answer
 
 # --- Config check ---
 print("Loaded Model:", settings.ollama_model)
@@ -54,3 +55,9 @@ for i, doc in enumerate(results):
     print("Source:", doc.metadata.get("source"))
     print("Page:", doc.metadata.get("page"))
     print("Text:", doc.page_content[:200])
+
+# LLM Generation
+answer = generate_answer(query, results)
+
+print("\nGenerated Answer:\n")
+print(answer)
