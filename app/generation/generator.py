@@ -1,11 +1,9 @@
 from langchain_community.llms import Ollama
 from app.config import settings
+from app.generation.citation_formatter import format_sources
 
 
 def generate_answer(query, retrieved_docs):
-    """
-    Generate an answer using the LLM based on retrieved documents.
-    """
 
     llm = Ollama(model=settings.ollama_model)
 
@@ -14,7 +12,7 @@ def generate_answer(query, retrieved_docs):
     prompt = f"""
 You are a helpful AI assistant.
 
-Use the following context to answer the question.
+Use the provided context to answer the question.
 
 Context:
 {context}
@@ -27,4 +25,11 @@ Answer:
 
     response = llm.invoke(prompt)
 
-    return response
+    sources = format_sources(retrieved_docs)
+
+    final_output = f"{response}\n\nSources:\n"
+
+    for src in sources:
+        final_output += f"- {src}\n"
+
+    return final_output
