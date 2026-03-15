@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from fastapi.responses import StreamingResponse
+from app.pipeline.rag_pipeline import stream_rag_query
 
 from app.pipeline.rag_pipeline import build_vector_store, run_rag_query
 
@@ -17,12 +19,11 @@ def health():
     return {"status": "RAG system running"}
 
 
-@app.post("/ask")
-def ask_question(request: QueryRequest):
+@app.post("/ask-stream")
+def ask_stream(request: QueryRequest):
 
-    answer, _ = run_rag_query(vector_store, request.question)
+    def generate():
+        for token in stream_rag_query(vector_store, request.question):
+            yield token
 
-    return {
-        "question": request.question,
-        "answer": answer
-    }
+    return StreamingResponse(generate(), media_type="text/plain")

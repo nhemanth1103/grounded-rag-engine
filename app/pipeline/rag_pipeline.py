@@ -1,24 +1,30 @@
+import time
+
 from app.ingestion.loader import load_documents
 from app.ingestion.chunker import chunk_documents
 from app.embeddings.embedder import get_embedding_model
 from app.vectorstore.store import create_vector_store
 from app.retrieval.retriever import retrieve_documents
-from app.generation.generator import generate_answer
+from app.generation.generator import generate_answer, stream_answer
+from app.utils.logger import setup_logger
+
+
+# Initialize logger
+logger = setup_logger()
 
 
 def build_vector_store(data_path: str):
     """
     Build the vector database from documents.
+    This runs once when the server starts.
     """
 
     print("\nLoading documents...")
     docs = load_documents(data_path)
-
     print(f"Loaded {len(docs)} documents")
 
     print("\nChunking documents...")
     chunks = chunk_documents(docs)
-
     print(f"Created {len(chunks)} chunks")
 
     print("\nLoading embedding model...")
@@ -34,18 +40,37 @@ def build_vector_store(data_path: str):
 
 def run_rag_query(vector_store, query: str):
     """
-    Execute a RAG query:
-    retrieve relevant documents and generate an answer.
+    Standard RAG pipeline (non-streaming).
     """
 
-    print("\nRetrieving relevant documents...")
+    start_time = time.time()
+
+    logger.info(f"User Query: {query}")
+
+    # Retrieve relevant documents
+    retrieved_docs = retrieve_documents(vector_store, query)
+    logger.info(f"Retrieved {len(retrieved_docs)} documents")
+
+    # Generate answer using LLM
+    answer = generate_answer(query, retrieved_docs)
+
+    end_time = time.time()
+    logger.info(f"Response generated in {round(end_time - start_time, 2)} seconds")
+
+    return answer, retrieved_docs
+
+
+def stream_rag_query(vector_store, query: str):
+    """
+    Streaming RAG pipeline.
+    Used for streaming API responses.
+    """
+
+    logger.info(f"Streaming query received: {query}")
 
     retrieved_docs = retrieve_documents(vector_store, query)
 
-    print(f"Retrieved {len(retrieved_docs)} documents")
+    logger.info(f"Retrieved {len(retrieved_docs)} documents for streaming")
 
-    print("\nGenerating answer with LLM...")
-
-    answer = generate_answer(query, retrieved_docs)
-
-    return answer, retrieved_docs
+    for token in stream_answer(query, retrieved_docs):
+        yield token
