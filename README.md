@@ -167,11 +167,12 @@ Metrics used:
 
 ## 🔮 Future Improvements
 
-* Replace Ollama with **Gemini / OpenAI API**
-* Add **Excel-based structured data (Light RAG)**
-* Implement **tool calling / agentic workflows**
-* Add **PDF report generation**
-* Optimize retrieval (MMR, reranking)
+* Add reranking models to select the most relevant chunks
+* Improve retrieval quality using MMR (Max Marginal Relevance)
+* Optimize chunking strategy (size, overlap, semantic splitting)
+* Support multiple data sources (PDF, Excel, text files)
+* Implement hybrid search (vector + keyword search)
+* Reduce latency by optimizing embedding and retrieval pipeline
 
 ---
 
