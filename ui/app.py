@@ -1,10 +1,9 @@
 import streamlit as st
 import requests
 
-API_URL = "http://127.0.0.1:8000/ask-stream"
+API_URL = "http://127.0.0.1:8000/ask"
 
 st.title("Grounded Knowledge Engine")
-st.write("Ask questions from your document knowledge base.")
 
 query = st.text_input("Enter your question:")
 
@@ -12,17 +11,22 @@ if st.button("Ask"):
 
     if query:
 
-        response = requests.post(
-            API_URL,
-            json={"question": query}
-        )
+        try:
+            response = requests.post(
+                API_URL,
+                json={"question": query}
+            )
 
-        if response.status_code == 200:
+            if response.status_code == 200:
 
-            result = response.json()
+                result = response.json()
 
-            st.subheader("Answer")
-            st.write(result["answer"])
+                st.subheader("Answer")
 
-        else:
-            st.error("API request failed.")
+                st.text_area("Output", result.get("answer", ""), height=300)
+
+            else:
+                st.error("API request failed.")
+
+        except Exception as e:
+            st.error("Backend not running.")

@@ -19,6 +19,18 @@ def health():
     return {"status": "RAG system running"}
 
 
+
+
+@app.post("/ask")
+def ask(request: QueryRequest):
+
+    answer, _ = run_rag_query(vector_store, request.question)
+
+    return {
+        "answer": str(answer)
+    }
+
+
 @app.post("/ask-stream")
 def ask_stream(request: QueryRequest):
 
