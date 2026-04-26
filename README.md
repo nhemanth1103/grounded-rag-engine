@@ -56,6 +56,11 @@ grounded-knowledge-engine/
 
 ---
 
+## UI Preview
+
+![alt text](<Screenshot 2026-04-26 221427.png>)
+
+
 ## ⚙️ Installation
 
 ### 1. Clone repository
